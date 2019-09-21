@@ -193,6 +193,18 @@ void click_release(int x, int y) {
     }
 }
 void detect_hand(int x, int y) {
+    Display *dpy = NULL;
+    XEvent event;
+    dpy = XOpenDisplay(NULL);
+
+    XQueryPointer(dpy, RootWindow(dpy, 0), &event.xbutton.root,
+		    &event.xbutton.window, &event.xbutton.x_root,
+		    &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
+		    &event.xbutton.state);
+    XTestFakeMotionEvent(dpy, 0, x, y, CurrentTime);
+    XSync(dpy, 0);
+    sleep(0.5);
+    XCloseDisplay(dpy);
     prev_state = cur_state;
 }
 
