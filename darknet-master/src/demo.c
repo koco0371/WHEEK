@@ -206,11 +206,9 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         for (j = 0; j < classes; ++j) {
             int show = strncmp(names[j], "dont_show", 9);
             if (sorted_dets[i].prob[j] > thresh && show) {
-                if (class_id < 0) {
                     class_id = j;
 		    cur_x = sorted_dets[i].bbox.x;
 		    cur_y = sorted_dets[i].bbox.y;
-                }
             }
         }
     }
