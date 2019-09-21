@@ -201,6 +201,7 @@ void detect_hand(int x, int y) {
 void control_display(detection* sorted_dets, float thresh, char** names, int classes, int num) {
     int i, j, num;
     int class_id;
+    int flag=0;
     for (i = 0; i < num; ++i) {
         class_id = -1;
         for (j = 0; j < classes; ++j) {
@@ -209,8 +210,12 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
                     class_id = j;
 		    cur_x = sorted_dets[i].bbox.x;
 		    cur_y = sorted_dets[i].bbox.y;
+		    flag=1;
+		    break;
             }
         }
+	if(flag==1)
+		break;
     }
     cur_state = class_id;
 
