@@ -198,7 +198,7 @@ void detect_hand(int x, int y) {
 
 
 void control_display(detection* sorted_dets, float thresh, char** names, int classes, int num) {
-    int i, j, num;
+    int i, j;
     int class_id;
     int flag=0;
     for (i = 0; i < num; ++i) {
