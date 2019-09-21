@@ -61,26 +61,26 @@ static int letter_box = 0;
 #define PALM 0
 #define FIST 1
 
-#define SCALE 1
+#define SCALE 800
 
 int cur_state = NOTHING;
 int prev_state = NOTHING;
-int prev_x = 0;
-int prev_y = 0;
-int cur_x = 0;
-int cur_y = 0;
+double prev_x = 0;
+double prev_y = 0;
+double cur_x = 0;
+double cur_y = 0;
 
-int get_x_distance()
+double get_x_distance()
 {
     return cur_x - prev_x;
 }
 
-int get_y_distance()
+double get_y_distance()
 {
     return cur_y - prev_y;
 }
 
-void left_down(int x, int y)
+void left_down(double x, double y)
 {
     Display *dpy = NULL;
     XEvent event;
@@ -99,7 +99,7 @@ void left_down(int x, int y)
 
 
 
-void left_up(int x, int y)
+void left_up(double x, double y)
 {
     Display *dpy = NULL;
     XEvent event;
@@ -118,7 +118,7 @@ void left_up(int x, int y)
 
 }
 
-void left_click(int x, int y)
+void left_click(double x, double y)
 {
     if (prev_state == PALM && cur_state == FIST)
     {
@@ -133,7 +133,7 @@ void left_click(int x, int y)
     prev_y = cur_y;
 }
 
-void drag_fist(int x, int y)
+void drag_fist(double x, double y)
 {
     Display *dpy = NULL;
     XEvent event;
@@ -146,14 +146,14 @@ void drag_fist(int x, int y)
         &event.xbutton.state);
 
     /* Fake the pointer movement to new relative position */
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + get_x_distance()*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
     XSync(dpy, 0);
     sleep(0.5);
     XCloseDisplay(dpy);
 
 }
 
-void move_pointer(int x, int y)
+void move_pointer(double x, double y)
 {
     Display *dpy = NULL;
     XEvent event;
@@ -166,14 +166,14 @@ void move_pointer(int x, int y)
         &event.xbutton.state);
 
     /* Fake the pointer movement to new relative position */
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + get_x_distance()*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
     XSync(dpy, 0);
     sleep(0.5);
     XCloseDisplay(dpy);
 
 }
 
-void drag(int x, int y)
+void drag(double x, double y)
 {
     if (prev_state == FIST && cur_state == FIST)
     {
@@ -187,12 +187,12 @@ void drag(int x, int y)
     prev_x = cur_x;
     prev_y = cur_y;
 }
-void click_release(int x, int y) {
+void click_release(double x, double y) {
     if (prev_state == FIST) {
         left_up(x, y);
     }
 }
-void detect_hand(int x, int y) {
+void detect_hand(double x, double y) {
     Display *dpy = NULL;
     XEvent event;
     dpy = XOpenDisplay(NULL);
@@ -201,7 +201,8 @@ void detect_hand(int x, int y) {
 		    &event.xbutton.window, &event.xbutton.x_root,
 		    &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
 		    &event.xbutton.state);
-    XTestFakeMotionEvent(dpy, 0, x, y, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
+   // XTestFakeMotionEvent(dpy, 0, x*SCALE, y*SCALE, CurrentTime);
     XSync(dpy, 0);
     sleep(0.5);
     XCloseDisplay(dpy);
@@ -213,6 +214,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     int i, j;
     int class_id;
     int flag=0;
+    //FILE * curout = fopen("curout.txt", "w");
     for (i = 0; i < num; ++i) {
         class_id = -1;
         for (j = 0; j < classes; ++j) {
@@ -221,6 +223,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
                     class_id = j;
 		    cur_x = sorted_dets[i].bbox.x;
 		    cur_y = sorted_dets[i].bbox.y;
+            printf("cursor : %2.4f %2.4f\n", cur_x*SCALE, cur_y*SCALE);
 		    flag=1;
 		    break;
             }
@@ -306,6 +309,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
     letter_box = letter_box_in;
     in_img = det_img = show_img = NULL;
     //skip = frame_skip;
+    
     image **alphabet = load_alphabet();
     int delay = frame_skip;
     demo_names = names;
@@ -412,7 +416,8 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 
             //if (nms) do_nms_obj(local_dets, local_nboxes, l.classes, nms);    // bad results
             if (nms) do_nms_sort(local_dets, local_nboxes, l.classes, nms);
-            control_display(local_dets, demo_thresh, demo_names, demo_classes, local_nboxes);
+            if(count%2==1)
+                control_display(local_dets, demo_thresh, demo_names, demo_classes, local_nboxes);
 
             //print class!!
             int i;
