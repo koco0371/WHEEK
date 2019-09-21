@@ -94,7 +94,6 @@ void left_down(int x, int y)
 
     XTestFakeButtonEvent(dpy, 1, True, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.5);
     XCloseDisplay(dpy);
 }
 
@@ -114,7 +113,7 @@ void left_up(int x, int y)
 
     XTestFakeButtonEvent(dpy, 1, False, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.5);
+
     XCloseDisplay(dpy);
 
 }
