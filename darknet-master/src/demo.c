@@ -61,7 +61,7 @@ static int letter_box = 0;
 #define PALM 0
 #define FIST 1
 
-#define SCALE 10 //bbox 변화를 마우스 포인터 이동에 적용하기 위한 배율 -> 임시: 10
+#define SCALE 1
 
 int cur_state = NOTHING;
 int prev_state = NOTHING;
@@ -70,13 +70,11 @@ int prev_y = 0;
 int cur_x = 0;
 int cur_y = 0;
 
-//웹캠에서 인식된 손 bbox의 x변화 구함
 int get_x_distance()
 {
     return cur_x - prev_x;
 }
 
-//웹캠에서 인식된 손 bbox의 y변화 구함
 int get_y_distance()
 {
     return cur_y - prev_y;
@@ -149,7 +147,6 @@ void drag_fist(int x, int y)
         &event.xbutton.state);
 
     /* Fake the pointer movement to new relative position */
-    /* 마우스 포인터의 상대위치 변화: get_x_distance(), get_y_distance(). 배율 미정 */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x + get_x_distance()*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
     XSync(dpy, 0);
     sleep(0.5);
@@ -170,7 +167,6 @@ void move_pointer(int x, int y)
         &event.xbutton.state);
 
     /* Fake the pointer movement to new relative position */
-    /* 마우스 포인터의 상대위치 변화: get_x_distance(), get_y_distance(). 배율 미정 */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x + get_x_distance()*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
     XSync(dpy, 0);
     sleep(0.5);
@@ -178,7 +174,6 @@ void move_pointer(int x, int y)
 
 }
 
-//드래그하는 정도(배율)은 테스트하면서 결정
 void drag(int x, int y)
 {
     if (prev_state == FIST && cur_state == FIST)
@@ -204,7 +199,7 @@ void detect_hand(int x, int y) {
 
 
 void control_display(detection* sorted_dets, float thresh, char** names, int classes, int num) {
-    int i, j, num;	//num-> scene 내의 bounding box 개수
+    int i, j, num;
     int class_id;
     for (i = 0; i < num; ++i) {
         class_id = -1;
@@ -218,14 +213,12 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         }
     }
     cur_state = class_id;
-    //det 박스의 중점x,y를 구한다
     cur_x = sorted_dets[0].bbox.x;
     cur_y = sorted_dets[0].bbox.y;
 
-    //det 가 어떤 클래스에 가장 부합한지 찾는다
     if (cur_state == NOTHING) {
         click_release(cur_x, cur_y);
-        prev_state = NOTHING; //다음에 다시 시작할땐 처음 상태부터 시작
+        prev_state = NOTHING; 
         return;
     }
     else if (cur_state != prev_state) {
