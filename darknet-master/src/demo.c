@@ -416,7 +416,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 
             //if (nms) do_nms_obj(local_dets, local_nboxes, l.classes, nms);    // bad results
             if (nms) do_nms_sort(local_dets, local_nboxes, l.classes, nms);
-            if (count % 2 == 1)
+            if (count & 1 == 1)
                 control_display(local_dets, demo_thresh, demo_names, demo_classes, local_nboxes);
 
             //print class!!
