@@ -57,6 +57,7 @@ mat_cv* show_img;
 static volatile int flag_exit;
 static int letter_box = 0;
 
+/* this is our graduation project code*/
 #define NOTHING -1
 #define PALM 0
 #define FIST 1
@@ -250,6 +251,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         drag(cur_x, cur_y);
     }
 }
+/* end */
 
 void *fetch_in_thread(void *ptr)
 {
