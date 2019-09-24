@@ -63,9 +63,12 @@ static int letter_box = 0;
 #define FIST 1
 
 #define SCALE 800
+#define FRAMECNT 10
+
 
 int cur_state = NOTHING;
 int prev_state = NOTHING;
+int frame_count = FRAMECNT ;
 double prev_x = 0;
 double prev_y = 0;
 double cur_x = 0;
@@ -81,7 +84,7 @@ double get_y_distance()
     return cur_y - prev_y;
 }
 
-void left_down(double x, double y)
+void left_down()
 {
     Display *dpy = NULL;
     XEvent event;
@@ -100,7 +103,7 @@ void left_down(double x, double y)
 
 
 
-void left_up(double x, double y)
+void left_up()
 {
     Display *dpy = NULL;
     XEvent event;
@@ -119,22 +122,22 @@ void left_up(double x, double y)
 
 }
 
-void left_click(double x, double y)
+void left_click()
 {
     if (prev_state == PALM && cur_state == FIST)
     {
-        left_down(x, y);
+        left_down();
     }
     else if (prev_state == FIST && cur_state == PALM)
     {
-        left_up(x, y);
+        left_up();
     }
     prev_state = cur_state;
     prev_x = cur_x;
     prev_y = cur_y;
 }
 
-void drag_fist(double x, double y)
+void drag_fist()
 {
     Display *dpy = NULL;
     XEvent event;
@@ -154,7 +157,7 @@ void drag_fist(double x, double y)
 
 }
 
-void move_pointer(double x, double y)
+void move_pointer()
 {
     Display *dpy = NULL;
     XEvent event;
@@ -174,26 +177,26 @@ void move_pointer(double x, double y)
 
 }
 
-void drag(double x, double y)
+void drag()
 {
     if (prev_state == FIST && cur_state == FIST)
     {
-        drag_fist(x, y);
+        drag_fist();
     }
     else if (prev_state == PALM && cur_state == PALM)
     {
-        move_pointer(x, y);
+        move_pointer();
     }
     prev_state = cur_state;
     prev_x = cur_x;
     prev_y = cur_y;
 }
-void click_release(double x, double y) {
+void click_release() {
     if (prev_state == FIST) {
-        left_up(x, y);
+        left_up();
     }
 }
-void detect_hand(double x, double y) {
+void detect_hand() {
     Display *dpy = NULL;
     XEvent event;
     dpy = XOpenDisplay(NULL);
@@ -235,20 +238,27 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     cur_state = class_id;
 
     if (cur_state == NOTHING) {
-        click_release(cur_x, cur_y);
-        prev_state = NOTHING;
-        return;
+        if(frame_count==0) {
+       	    click_release();
+       	    prev_state = NOTHING;
+	        frame_count = FRAMECNT ;
+            return;
+        }
+        else{
+	        frame_count-=1;
+        }
+
     }
     else if (cur_state != prev_state) {
         if (prev_state == NOTHING && cur_state == PALM) {
-            detect_hand(cur_x, cur_y);
+            detect_hand();
         }
         else {
-            left_click(cur_x, cur_y);
+            left_click();
         }
     }
     else if (cur_state == prev_state) {
-        drag(cur_x, cur_y);
+        drag();
     }
 }
 /* end */
