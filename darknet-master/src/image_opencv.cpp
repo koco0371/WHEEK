@@ -359,6 +359,9 @@ extern "C" {
             cv::namedWindow(window_name, window_type);
             cv::moveWindow(window_name, 1700, 860); // window position modified
             cv::resizeWindow(window_name, width, height);
+            /*HWND hWnd = (HWND)cvGetWindowHandle("Current Image");
+            hWnd = GetParent(hWnd);
+            SetWindowPos( hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE);*/
         }
         catch (...) {
             cerr << "OpenCV exception: create_window_cv \n";
@@ -574,9 +577,9 @@ extern "C" {
     {
         cv::VideoCapture* cap = NULL;
 
-
         try {
             cap = new cv::VideoCapture(index);
+            //cv::VideoCapture* cap_fliped = cv2.flip(cap, 1);
             cap->set(CV_CAP_PROP_FRAME_WIDTH, 640); // resolution modified
             cap->set(CV_CAP_PROP_FRAME_HEIGHT, 360);
         }
@@ -600,6 +603,7 @@ extern "C" {
 
     mat_cv* get_capture_frame_cv(cap_cv *cap) {
         cv::Mat *mat = new cv::Mat();
+        cv::Mat *mat_fliped = new cv::Mat();
         try {
             if (cap) {
                 cv::VideoCapture &cpp_cap = *(cv::VideoCapture *)cap;
@@ -610,11 +614,12 @@ extern "C" {
                 else std::cout << " Video-stream stopped! \n";
             }
             else cerr << " cv::VideoCapture isn't created \n";
+            cv::flip(*mat, *mat_fliped, 1);
         }
         catch (...) {
             std::cout << " OpenCV exception: Video-stream stoped! \n";
         }
-        return (mat_cv *)mat;
+        return (mat_cv *)mat_fliped;
     }
     // ----------------------------------------
 

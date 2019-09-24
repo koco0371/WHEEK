@@ -150,9 +150,9 @@ void drag_fist()
         &event.xbutton.state);
 
     /* Fake the pointer movement to new relative position */
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE*16, event.xbutton.y + get_y_distance()*SCALE*9, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
     XSync(dpy, 0);
-    sleep(1);
+    sleep(0.75);
     XCloseDisplay(dpy);
 
 }
@@ -169,10 +169,13 @@ void move_pointer()
         &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
         &event.xbutton.state);
 
+    
+    printf("event.xbutton.x, y : %f, %f\n", event.xbutton.x, event.xbutton.y);
+
     /* Fake the pointer movement to new relative position */
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE*16, event.xbutton.y + get_y_distance()*SCALE*9, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
     XSync(dpy, 0);
-    sleep(1);
+    sleep(0.75);
     XCloseDisplay(dpy);
 
 }
@@ -208,7 +211,7 @@ void detect_hand() {
     //XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
     //XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*16, cur_y*SCALE*9, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.5);
+    sleep(0.65);
     XCloseDisplay(dpy);
     prev_state = cur_state;
 }
@@ -431,7 +434,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 
             //if (nms) do_nms_obj(local_dets, local_nboxes, l.classes, nms);    // bad results
             if (nms) do_nms_sort(local_dets, local_nboxes, l.classes, nms);
-            if (count & 1 == 1)
+            if (count & 20 == 20)
                 control_display(local_dets, demo_thresh, demo_names, demo_classes, local_nboxes);
 
             //print class!!
@@ -439,7 +442,6 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
             for (i = 0; i < local_nboxes; ++i) {
                 int class_id = -1;
                 float prob = 0;
-
                 for (j = 0; j < l.classes; ++j) {
                     if (local_dets[i].prob[j] > thresh && local_dets[i].prob[j] > prob) {
                         if (class_id < 0) {
