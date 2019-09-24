@@ -1,7 +1,7 @@
-GPU=0
-CUDNN=0
+GPU=1
+CUDNN=1
 CUDNN_HALF=0
-OPENCV=0
+OPENCV=1
 AVX=0
 OPENMP=0
 LIBSO=0
@@ -56,7 +56,7 @@ CC=gcc
 CPP=g++
 NVCC=nvcc
 OPTS=-Ofast
-LDFLAGS= -lm -pthread
+LDFLAGS= -lm -pthread -lXtst -lXext -lpthread -lX11
 COMMON= -Iinclude/ -I3rdparty/stb/include
 CFLAGS=-Wall -Wfatal-errors -Wno-unused-result -Wno-unknown-pragmas -fPIC
 
