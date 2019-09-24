@@ -205,8 +205,8 @@ void detect_hand() {
         &event.xbutton.window, &event.xbutton.x_root,
         &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
         &event.xbutton.state);
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
-    // XTestFakeMotionEvent(dpy, 0, x*SCALE, y*SCALE, CurrentTime);
+    //XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
+    //XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*16, cur_y*SCALE*9, CurrentTime);
     XSync(dpy, 0);
     sleep(0.5);
     XCloseDisplay(dpy);
