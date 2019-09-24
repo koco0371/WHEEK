@@ -62,7 +62,7 @@ static int letter_box = 0;
 #define PALM 0
 #define FIST 1
 
-#define SCALE 800
+#define SCALE 100
 #define FRAMECNT 10
 
 
@@ -150,9 +150,9 @@ void drag_fist()
         &event.xbutton.state);
 
     /* Fake the pointer movement to new relative position */
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE*16, event.xbutton.y + get_y_distance()*SCALE*9, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.7);
+    sleep(1);
     XCloseDisplay(dpy);
 
 }
@@ -170,9 +170,9 @@ void move_pointer()
         &event.xbutton.state);
 
     /* Fake the pointer movement to new relative position */
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE*16, event.xbutton.y + get_y_distance()*SCALE*9, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.7);
+    sleep(1);
     XCloseDisplay(dpy);
 
 }
@@ -241,7 +241,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         if(frame_count==0) {
        	    click_release();
        	    prev_state = NOTHING;
-	        frame_count = FRAMECNT ;
+	    frame_count = FRAMECNT ;
             return;
         }
         else{
@@ -252,12 +252,15 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     else if (cur_state != prev_state) {
         if (prev_state == NOTHING && cur_state == PALM) {
             detect_hand();
+	    frame_count = FRAMECNT ;
         }
         else {
+	    frame_count = FRAMECNT ;
             left_click();
         }
     }
     else if (cur_state == prev_state) {
+	frame_count = FRAMECNT ;
         drag();
     }
 }
