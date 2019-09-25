@@ -64,13 +64,12 @@ static int letter_box = 0;
 
 #define SCALE 100
 #define FRAMECNT 10
-#define CLICKCNT 7
+
 
 
 int cur_state = NOTHING;
 int prev_state = NOTHING;
 int frame_count = FRAMECNT ;
-int click_count = CLICKCNT ;
 double prev_x = 0;
 double prev_y = 0;
 double cur_x = 0;
@@ -154,7 +153,7 @@ void drag_fist()
     /* Fake the pointer movement to new relative position */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.75);
+    sleep(0.65);
     XCloseDisplay(dpy);
 
 }
@@ -177,7 +176,7 @@ void move_pointer()
     /* Fake the pointer movement to new relative position */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.75);
+    sleep(0.65);
     XCloseDisplay(dpy);
 
 }
@@ -186,13 +185,8 @@ void drag()
 {
     if (prev_state == FIST && cur_state == FIST)
     {
-         if(click_count==0){
-            click_count=CLICKCNT;
+         
             drag_fist();
-        }
-        else{
-            click_count-=1;
-        }
     }
     else if (prev_state == PALM && cur_state == PALM)
     {
@@ -217,7 +211,7 @@ void detect_hand() {
         &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
         &event.xbutton.state);
     //XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
-    //XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*16, cur_y*SCALE*9, CurrentTime);
+    XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*16, cur_y*SCALE*9, CurrentTime);
     XSync(dpy, 0);
     sleep(0.65);
     XCloseDisplay(dpy);
@@ -249,7 +243,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     cur_state = class_id;
 
     if (cur_state == NOTHING) {
-        click_count=CLICKCNT;
+        
         if(frame_count==0) {
        	    click_release();
        	    prev_state = NOTHING;
@@ -265,7 +259,6 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         if (prev_state == NOTHING && cur_state == PALM) {
             detect_hand();
 	        frame_count = FRAMECNT ;
-            click_count=CLICKCNT;
         }
         else {
             frame_count = FRAMECNT ;
@@ -275,8 +268,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     }
     else if (cur_state == prev_state) {
 	    frame_count = FRAMECNT ;
-        click_count=CLICKCNT;
-        drag;
+        drag();
     }
 }
 /* end */
