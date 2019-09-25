@@ -66,7 +66,6 @@ static int letter_box = 0;
 #define FRAMECNT 10
 
 
-
 int cur_state = NOTHING;
 int prev_state = NOTHING;
 int frame_count = FRAMECNT ;
@@ -101,8 +100,6 @@ void left_down()
     XSync(dpy, 0);
     XCloseDisplay(dpy);
 }
-
-
 
 void left_up()
 {
@@ -185,7 +182,6 @@ void drag()
 {
     if (prev_state == FIST && cur_state == FIST)
     {
-         
             drag_fist();
     }
     else if (prev_state == PALM && cur_state == PALM)
@@ -196,11 +192,15 @@ void drag()
     prev_x = cur_x;
     prev_y = cur_y;
 }
-void click_release() {
-    if (prev_state == FIST) {
+
+void click_release() 
+{
+    if (prev_state == FIST) 
+    {
         left_up();
     }
 }
+
 void detect_hand() {
     Display *dpy = NULL;
     XEvent event;
@@ -210,7 +210,7 @@ void detect_hand() {
         &event.xbutton.window, &event.xbutton.x_root,
         &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
         &event.xbutton.state);
-    //XTestFakeMotionEvent(dpy, 0, event.xbutton.x + (-get_x_distance())*SCALE, event.xbutton.y + get_y_distance()*SCALE, CurrentTime);
+   
     XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*16, cur_y*SCALE*9, CurrentTime);
     XSync(dpy, 0);
     sleep(0.65);
@@ -219,20 +219,24 @@ void detect_hand() {
 }
 
 
-void control_display(detection* sorted_dets, float thresh, char** names, int classes, int num) {
+void control_display(detection* sorted_dets, float thresh, char** names, int classes, int num) 
+{
     int i, j;
     int class_id;
     int flag = 0;
     //FILE * curout = fopen("curout.txt", "w");
-    for (i = 0; i < num; ++i) {
+    for (i = 0; i < num; ++i) 
+    {
         class_id = -1;
-        for (j = 0; j < classes; ++j) {
+        for (j = 0; j < classes; ++j) 
+        {
             int show = strncmp(names[j], "dont_show", 9);
-            if (sorted_dets[i].prob[j] > thresh && show) {
+            if (sorted_dets[i].prob[j] > thresh && show) 
+            {
                 class_id = j;
                 cur_x = sorted_dets[i].bbox.x;
                 cur_y = sorted_dets[i].bbox.y;
-                printf("cursor : %2.4f %2.4f\n", cur_x*SCALE, cur_y*SCALE);
+                //printf("cursor : %2.4f %2.4f\n", cur_x*SCALE, cur_y*SCALE);
                 flag = 1;
                 break;
             }
@@ -242,31 +246,38 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     }
     cur_state = class_id;
 
-    if (cur_state == NOTHING) {
+    if (cur_state == NOTHING) 
+    {
         
-        if(frame_count==0) {
+        if(frame_count==0) 
+        {
        	    click_release();
        	    prev_state = NOTHING;
 	        frame_count = FRAMECNT ;
             return;
         }
-        else{
+        else
+        {
 	        frame_count-=1;
         }
 
     }
-    else if (cur_state != prev_state) {
-        if (prev_state == NOTHING && cur_state == PALM) {
+    else if (cur_state != prev_state) 
+    {
+        if (prev_state == NOTHING && cur_state == PALM) 
+        {
             detect_hand();
 	        frame_count = FRAMECNT ;
         }
-        else {
+        else 
+        {
             frame_count = FRAMECNT ;
             left_click();
         }
 	        
     }
-    else if (cur_state == prev_state) {
+    else if (cur_state == prev_state) 
+    {
 	    frame_count = FRAMECNT ;
         drag();
     }
