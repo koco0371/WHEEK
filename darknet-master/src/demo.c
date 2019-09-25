@@ -64,13 +64,13 @@ static int letter_box = 0;
 
 #define SCALE 100
 #define FRAMECNT 10
-#define TOUCHCNT 5
+#define CLICKCNT 5
 
 
 int cur_state = NOTHING;
 int prev_state = NOTHING;
 int frame_count = FRAMECNT ;
-int click_count = TOUCHCNT ;
+int click_count = CLICKCNT ;
 double prev_x = 0;
 double prev_y = 0;
 double cur_x = 0;
@@ -243,7 +243,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     cur_state = class_id;
 
     if (cur_state == NOTHING) {
-        click_count=TOUCHCNT;
+        click_count=CLICKCNT;
         if(frame_count==0) {
        	    click_release();
        	    prev_state = NOTHING;
@@ -259,12 +259,12 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         if (prev_state == NOTHING && cur_state == PALM) {
             detect_hand();
 	        frame_count = FRAMECNT ;
-            click_count=TOUCHCNT;
+            click_count=CLICKCNT;
         }
         else {
             frame_count = FRAMECNT ;
             if(click_count==0){
-                click_count=TOUCHCNT;
+                click_count=CLICKCNT;
                 left_click();
             }
             else{
@@ -275,7 +275,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
     }
     else if (cur_state == prev_state) {
 	    frame_count = FRAMECNT ;
-        click_count=TOUCHCNT;
+        click_count=CLICKCNT;
         drag();
     }
 }
