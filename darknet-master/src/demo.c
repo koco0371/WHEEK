@@ -64,7 +64,7 @@ static int letter_box = 0;
 
 #define SCALE 100
 #define FRAMECNT 10
-#define CLICKCNT 5
+#define CLICKCNT 7
 
 
 int cur_state = NOTHING;
@@ -186,7 +186,13 @@ void drag()
 {
     if (prev_state == FIST && cur_state == FIST)
     {
-        drag_fist();
+         if(click_count==0){
+            click_count=CLICKCNT;
+            drag_fist();
+        }
+        else{
+            click_count-=1;
+        }
     }
     else if (prev_state == PALM && cur_state == PALM)
     {
@@ -247,7 +253,7 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         if(frame_count==0) {
        	    click_release();
        	    prev_state = NOTHING;
-	    frame_count = FRAMECNT ;
+	        frame_count = FRAMECNT ;
             return;
         }
         else{
@@ -263,20 +269,14 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
         }
         else {
             frame_count = FRAMECNT ;
-            if(click_count==0){
-                click_count=CLICKCNT;
-                left_click();
-            }
-            else{
-                click_count-=1;
-            }
+            left_click();
         }
 	        
     }
     else if (cur_state == prev_state) {
 	    frame_count = FRAMECNT ;
         click_count=CLICKCNT;
-        drag();
+        drag;
     }
 }
 /* end */
@@ -446,7 +446,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 
             //if (nms) do_nms_obj(local_dets, local_nboxes, l.classes, nms);    // bad results
             if (nms) do_nms_sort(local_dets, local_nboxes, l.classes, nms);
-            if (count & 20 == 20)
+            if (count & 15 == 15)
                 control_display(local_dets, demo_thresh, demo_names, demo_classes, local_nboxes);
 
             //print class!!
