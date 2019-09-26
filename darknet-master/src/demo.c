@@ -64,16 +64,18 @@ static int letter_box = 0;
 
 #define SCALE 100
 #define FRAMECNT 10
+#define DRAGCNT 1
 
 
 int cur_state = NOTHING;
 int prev_state = NOTHING;
 int frame_count = FRAMECNT ;
+int drag_count = DRAGCNT;
 double prev_x = 0;
 double prev_y = 0;
 double cur_x = 0;
 double cur_y = 0;
-
+double palm_fist_dif=0;
 double get_x_distance()
 {
     return cur_x - prev_x;
@@ -81,7 +83,8 @@ double get_x_distance()
 
 double get_y_distance()
 {
-    return cur_y - prev_y;
+    
+    return cur_y - prev_y>0.3?cur_y-prev_y-palm_fist_dif:cur_y-prev_y;
 }
 
 void left_down()
@@ -124,10 +127,12 @@ void left_click()
 {
     if (prev_state == PALM && cur_state == FIST)
     {
+        palm_fist_dif = get_y_distance();
         left_down();
     }
     else if (prev_state == FIST && cur_state == PALM)
     {
+        
         left_up();
     }
     prev_state = cur_state;
@@ -182,7 +187,13 @@ void drag()
 {
     if (prev_state == FIST && cur_state == FIST)
     {
+        if(drag_count==0){
+            drag_count=DRAGCNT;    
             drag_fist();
+        }
+        else{
+            drag_count--;
+        }
     }
     else if (prev_state == PALM && cur_state == PALM)
     {
@@ -211,7 +222,7 @@ void detect_hand() {
         &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
         &event.xbutton.state);
    
-    XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*16, cur_y*SCALE*9, CurrentTime);
+   // XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*30, cur_y*SCALE*20, CurrentTime);
     XSync(dpy, 0);
     sleep(0.65);
     XCloseDisplay(dpy);
@@ -236,7 +247,10 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
                 class_id = j;
                 cur_x = sorted_dets[i].bbox.x;
                 cur_y = sorted_dets[i].bbox.y;
+                       
+                
                 //printf("cursor : %2.4f %2.4f\n", cur_x*SCALE, cur_y*SCALE);
+               // printf ("box : 2.4f", sorted_dets[i].bbox.h);
                 flag = 1;
                 break;
             }
