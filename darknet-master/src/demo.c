@@ -76,6 +76,7 @@ double prev_y = 0;
 double cur_x = 0;
 double cur_y = 0;
 double palm_fist_dif=0;
+
 double get_x_distance()
 {
     return cur_x - prev_x;
@@ -83,7 +84,6 @@ double get_x_distance()
 
 double get_y_distance()
 {
-    
     return cur_y - prev_y>0.3?cur_y-prev_y-palm_fist_dif:cur_y-prev_y;
 }
 
@@ -171,9 +171,8 @@ void move_pointer()
         &event.xbutton.window, &event.xbutton.x_root,
         &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
         &event.xbutton.state);
-
     
-    printf("event.xbutton.x, y : %f, %f\n", event.xbutton.x, event.xbutton.y);
+    //printf("event.xbutton.x, y : %f, %f\n", event.xbutton.x, event.xbutton.y);
 
     /* Fake the pointer movement to new relative position */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
@@ -192,7 +191,7 @@ void drag()
             drag_fist();
         }
         else{
-            drag_count--;
+            drag_count-=1;
         }
     }
     else if (prev_state == PALM && cur_state == PALM)
@@ -248,9 +247,8 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
                 cur_x = sorted_dets[i].bbox.x;
                 cur_y = sorted_dets[i].bbox.y;
                        
-                
                 //printf("cursor : %2.4f %2.4f\n", cur_x*SCALE, cur_y*SCALE);
-               // printf ("box : 2.4f", sorted_dets[i].bbox.h);
+                //printf ("box : 2.4f", sorted_dets[i].bbox.h);
                 flag = 1;
                 break;
             }
