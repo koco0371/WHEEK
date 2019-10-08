@@ -64,7 +64,7 @@ static int letter_box = 0;
 
 #define SCALE 100
 #define FRAMECNT 10
-#define DRAGCNT 1
+#define DRAGCNT 3
 
 
 int cur_state = NOTHING;
@@ -76,15 +76,33 @@ double prev_y = 0;
 double cur_x = 0;
 double cur_y = 0;
 double palm_fist_dif=0;
-
 double get_x_distance()
 {
-    return cur_x - prev_x;
+    double realx = cur_x-prev_x;
+    double tempx = cur_x-prev_x > 0? cur_x-prev_x : prev_x-cur_x;
+    return tempx < 0.0035? 0 : realx;
 }
-
 double get_y_distance()
 {
-    return cur_y - prev_y>0.3?cur_y-prev_y-palm_fist_dif:cur_y-prev_y;
+    double realy = cur_y-prev_y;
+    double tempy = cur_y-prev_y > 0? cur_y-prev_y : prev_y-cur_y;
+    if(tempy > 0.19) 
+    {
+        realy = cur_y-prev_y + palm_fist_dif;
+        if(cur_state==PALM)
+        {
+            palm_fist_dif=0;
+        }
+        // if(cur_state==FIST)
+        //     realy = cur_y-prev_y - palm_fist_dif;
+        // else if(cur_state==PALM)
+        //     {
+        //         realy = cur_y-prev_y + palm_fist_dif;
+        //         palm_fist_dif=0;
+        //     }
+    }
+    else if(tempy<0.0035) realy=0;
+    return realy;
 }
 
 void left_down()
@@ -132,7 +150,9 @@ void left_click()
     }
     else if (prev_state == FIST && cur_state == PALM)
     {
-        
+        drag_count=DRAGCNT;
+        //cur_y+=(palm_fist_dif/2);
+        //palm_fist_dif=0;
         left_up();
     }
     prev_state = cur_state;
@@ -155,7 +175,7 @@ void drag_fist()
     /* Fake the pointer movement to new relative position */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.65);
+    sleep(0.45);
     XCloseDisplay(dpy);
 
 }
@@ -171,13 +191,14 @@ void move_pointer()
         &event.xbutton.window, &event.xbutton.x_root,
         &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
         &event.xbutton.state);
+
     
-    //printf("event.xbutton.x, y : %f, %f\n", event.xbutton.x, event.xbutton.y);
+    printf("event.xbutton.x, y : %f, %f\n", event.xbutton.x, event.xbutton.y);
 
     /* Fake the pointer movement to new relative position */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.65);
+    sleep(0.45);
     XCloseDisplay(dpy);
 
 }
@@ -186,17 +207,17 @@ void drag()
 {
     if (prev_state == FIST && cur_state == FIST)
     {
-        if(drag_count==0){
-            drag_count=DRAGCNT;    
+        if(drag_count==0){    
             drag_fist();
         }
         else{
-            drag_count-=1;
+            drag_count--;
         }
     }
     else if (prev_state == PALM && cur_state == PALM)
     {
-        move_pointer();
+        if(get_y_distance() < 0.1 && get_x_distance() < 0.1)
+            move_pointer(); 
     }
     prev_state = cur_state;
     prev_x = cur_x;
@@ -223,7 +244,7 @@ void detect_hand() {
    
    // XTestFakeMotionEvent(dpy, 0, cur_x*SCALE*30, cur_y*SCALE*20, CurrentTime);
     XSync(dpy, 0);
-    sleep(0.65);
+    sleep(0.45);
     XCloseDisplay(dpy);
     prev_state = cur_state;
 }
@@ -247,8 +268,9 @@ void control_display(detection* sorted_dets, float thresh, char** names, int cla
                 cur_x = sorted_dets[i].bbox.x;
                 cur_y = sorted_dets[i].bbox.y;
                        
+                
                 //printf("cursor : %2.4f %2.4f\n", cur_x*SCALE, cur_y*SCALE);
-                //printf ("box : 2.4f", sorted_dets[i].bbox.h);
+               // printf ("box : 2.4f", sorted_dets[i].bbox.h);
                 flag = 1;
                 break;
             }
@@ -461,7 +483,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 
             //if (nms) do_nms_obj(local_dets, local_nboxes, l.classes, nms);    // bad results
             if (nms) do_nms_sort(local_dets, local_nboxes, l.classes, nms);
-            if (count & 15 == 15)
+            if (count & 2 == 2)
                 control_display(local_dets, demo_thresh, demo_names, demo_classes, local_nboxes);
 
             //print class!!
