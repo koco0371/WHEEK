@@ -13,6 +13,16 @@ box float_to_box(float *f)
     return b;
 }
 
+box float_to_box_stride(float *f, int stride)
+{
+    box b = { 0 };
+    b.x = f[0];
+    b.y = f[1 * stride];
+    b.w = f[2 * stride];
+    b.h = f[3 * stride];
+    return b;
+}
+
 dbox derivative(box a, box b)
 {
     dbox d;
@@ -207,6 +217,8 @@ dxrep dx_box_iou(box pred, box truth, IOU_LOSS iou_loss) {
         p_dr = ((U * dI_wrt_r) - (I * dU_wrt_r)) / (U * U);
     }
 
+    // GIoU = I/U - (C-U)/C
+    // C is the smallest convex hull that encloses both Detection and Truth
     if (iou_loss == GIOU) {
         if (C > 0) {
             // apply "C" term from gIOU

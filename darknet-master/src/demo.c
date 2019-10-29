@@ -71,6 +71,7 @@ int cur_state = NOTHING;
 int prev_state = NOTHING;
 int frame_count = FRAMECNT ;
 int drag_count = DRAGCNT;
+//int isTop = 0;
 double prev_x = 0;
 double prev_y = 0;
 double cur_x = 0;
@@ -160,26 +161,6 @@ void left_click()
     prev_y = cur_y;
 }
 
-void drag_fist()
-{
-    Display *dpy = NULL;
-    XEvent event;
-    dpy = XOpenDisplay(NULL);
-
-    /* Get the current pointer position */
-    XQueryPointer(dpy, RootWindow(dpy, 0), &event.xbutton.root,
-        &event.xbutton.window, &event.xbutton.x_root,
-        &event.xbutton.y_root, &event.xbutton.x, &event.xbutton.y,
-        &event.xbutton.state);
-
-    /* Fake the pointer movement to new relative position */
-    XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
-    XSync(dpy, 0);
-    sleep(0.45);
-    XCloseDisplay(dpy);
-
-}
-
 void move_pointer()
 {
     Display *dpy = NULL;
@@ -193,7 +174,7 @@ void move_pointer()
         &event.xbutton.state);
 
     
-    printf("event.xbutton.x, y : %f, %f\n", event.xbutton.x, event.xbutton.y);
+    printf("event.xbutton.x, y : %f %f\n", event.xbutton.x, event.xbutton.y);
 
     /* Fake the pointer movement to new relative position */
     XTestFakeMotionEvent(dpy, 0, event.xbutton.x +(get_x_distance()*SCALE*30), event.xbutton.y + get_y_distance()*SCALE*20, CurrentTime);
@@ -208,7 +189,7 @@ void drag()
     if (prev_state == FIST && cur_state == FIST)
     {
         if(drag_count==0){    
-            drag_fist();
+            move_pointer();
         }
         else{
             drag_count--;
@@ -249,13 +230,13 @@ void detect_hand() {
     prev_state = cur_state;
 }
 
-
 void control_display(detection* sorted_dets, float thresh, char** names, int classes, int num) 
 {
     int i, j;
     int class_id;
     int flag = 0;
     //FILE * curout = fopen("curout.txt", "w");
+
     for (i = 0; i < num; ++i) 
     {
         class_id = -1;
@@ -448,7 +429,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
     int count = 0;
     if (!prefix && !dont_show) {
         int full_screen = 0;
-        create_window_cv("Demo", full_screen, 427, 240/*1352, 1013*/); // window size modified
+        create_window_cv("Demo", full_screen, 427, 240); // window size modified
     }
 
 
@@ -482,34 +463,14 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
             detection *local_dets = dets;
 
             //if (nms) do_nms_obj(local_dets, local_nboxes, l.classes, nms);    // bad results
-            if (nms) do_nms_sort(local_dets, local_nboxes, l.classes, nms);
+            if (nms) do_nms_sort(local_dets, local_nboxes, l.classes, nms);    
+            
+            //if (isTop < 1) always_on_top();
+
+            /* this is our graduation project program start point */
             if (count & 2 == 2)
                 control_display(local_dets, demo_thresh, demo_names, demo_classes, local_nboxes);
-
-            //print class!!
-            /*int i;
-            for (i = 0; i < local_nboxes; ++i) {
-                int class_id = -1;
-                float prob = 0;
-                for (j = 0; j < l.classes; ++j) {
-                    if (local_dets[i].prob[j] > thresh && local_dets[i].prob[j] > prob) {
-                        if (class_id < 0) {
-                            class_id = j;
-                            fprintf(temptestout, "class name : %d\n", class_id);
-                            fprintf(temptestout, "prob : %f\n", local_dets[i].prob[class_id]);
-                            fprintf(temptestout, "%2.4f %2.4f %2.4f %2.4f\n", local_dets[i].bbox.x, local_dets[i].bbox.y);
-                        }
-                        else {
-                            fprintf(temptestout, "+\n");
-                            fprintf(temptestout, "class name : %d\n", j);
-                            fprintf(temptestout, "prob : %f\n", local_dets[i].prob[j]);
-                            fprintf(temptestout, "%2.4f %2.4f %2.4f %2.4f\n", local_dets[i].bbox.x, local_dets[i].bbox.y);
-                        }
-                    }
-                }
-            }
-            if (local_nboxes != 0) fprintf(temptestout, "---------------\n");*/
-
+            /* end */
 
             //printf("\033[2J");
             //printf("\033[1;1H");

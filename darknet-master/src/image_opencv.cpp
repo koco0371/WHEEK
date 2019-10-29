@@ -347,6 +347,7 @@ extern "C" {
     // ====================================================================
     // Window
     // ====================================================================
+    
     void create_window_cv(char const* window_name, int full_screen, int width, int height)
     {
         try {
@@ -359,14 +360,13 @@ extern "C" {
             cv::namedWindow(window_name, window_type);
             cv::moveWindow(window_name, 1700, 860); // window position modified
             cv::resizeWindow(window_name, width, height);
-            /*HWND hWnd = (HWND)cvGetWindowHandle("Current Image");
-            hWnd = GetParent(hWnd);
-            SetWindowPos( hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE);*/
         }
         catch (...) {
             cerr << "OpenCV exception: create_window_cv \n";
         }
     }
+
+
     // ----------------------------------------
 
     void destroy_all_windows_cv()
@@ -579,7 +579,6 @@ extern "C" {
 
         try {
             cap = new cv::VideoCapture(index);
-            //cv::VideoCapture* cap_fliped = cv2.flip(cap, 1);
             cap->set(CV_CAP_PROP_FRAME_WIDTH, 640); // resolution modified
             cap->set(CV_CAP_PROP_FRAME_HEIGHT, 360);
         }
@@ -894,7 +893,6 @@ extern "C" {
                     //alphabet = 0;
                     //}
 
-                    //printf("%d %s: %.0f%%\n", i, names[class_id], prob*100);
                     int offset = class_id * 123457 % classes;
                     float red = get_color(2, offset, classes);
                     float green = get_color(1, offset, classes);
@@ -915,7 +913,6 @@ extern "C" {
                     b.h = (b.h < 1) ? b.h : 1;
                     b.x = (b.x < 1) ? b.x : 1;
                     b.y = (b.y < 1) ? b.y : 1;
-                    //printf("%f %f %f %f\n", b.x, b.y, b.w, b.h);
 
                     int left = (b.x - b.w / 2.)*show_img->cols;
                     int right = (b.x + b.w / 2.)*show_img->cols;
@@ -926,12 +923,6 @@ extern "C" {
                     if (right > show_img->cols - 1) right = show_img->cols - 1;
                     if (top < 0) top = 0;
                     if (bot > show_img->rows - 1) bot = show_img->rows - 1;
-
-                    //int b_x_center = (left + right) / 2;
-                    //int b_y_center = (top + bot) / 2;
-                    //int b_width = right - left;
-                    //int b_height = bot - top;
-                    //sprintf(labelstr, "%d x %d - w: %d, h: %d", b_x_center, b_y_center, b_width, b_height);
 
                     float const font_size = show_img->rows / 1000.F;
                     cv::Size const text_size = cv::getTextSize(labelstr, cv::FONT_HERSHEY_COMPLEX_SMALL, font_size, 1, 0);
@@ -1131,7 +1122,7 @@ extern "C" {
     // ====================================================================
     // Data augmentation
     // ====================================================================
-    static box float_to_box_stride(float *f, int stride)
+    /*static box float_to_box_stride(float *f, int stride)
     {
         box b = { 0 };
         b.x = f[0];
@@ -1139,7 +1130,7 @@ extern "C" {
         b.w = f[2 * stride];
         b.h = f[3 * stride];
         return b;
-    }
+    }*/
 
     image image_data_augmentation(mat_cv* mat, int w, int h,
         int pleft, int ptop, int swidth, int sheight, int flip,
